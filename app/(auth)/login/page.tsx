@@ -1,15 +1,21 @@
-export default function LoginPage() {
+import { AuthCard } from '../_components/auth-card'
+import { LoginForm } from './_components/login-form'
+
+interface PageProps {
+  searchParams: Promise<{ erro?: string }>
+}
+
+const ERROS_URL: Record<string, string> = {
+  link_invalido: 'Link inválido ou expirado. Solicite um novo.',
+}
+
+export default async function LoginPage({ searchParams }: PageProps) {
+  const { erro } = await searchParams
+  const erroUrl = erro ? (ERROS_URL[erro] ?? 'Ocorreu um erro. Tente novamente.') : undefined
+
   return (
-    <main className="min-h-screen flex items-center justify-center bg-muted">
-      <div className="w-full max-w-sm space-y-6 p-8 bg-white rounded-lg border shadow-sm">
-        <div className="space-y-1">
-          <h1 className="text-xl font-semibold tracking-tight">VariaPulse</h1>
-          <p className="text-sm text-muted-foreground">
-            Análise de variabilidade da pressão arterial
-          </p>
-        </div>
-        {/* Formulário de login — implementar com Supabase Auth */}
-      </div>
-    </main>
+    <AuthCard titulo="Entrar" descricao="Análise de variabilidade da pressão arterial">
+      <LoginForm erroUrl={erroUrl} />
+    </AuthCard>
   )
 }
