@@ -1,0 +1,38 @@
+# Dependências
+node_modules/
+.pnp
+.pnp.js
+
+# Build
+.next/
+out/
+build/
+
+# Variáveis de ambiente — NUNCA commitar
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Dados clínicos — nunca devem estar no repositório
+dados/
+uploads/
+*.csv
+*.xlsx
+*.xls
+*.txt
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# Skills locais (instaladas por npx skills)
+.agents/
