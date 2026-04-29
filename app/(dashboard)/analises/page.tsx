@@ -27,11 +27,19 @@ export default async function AnalisesPage() {
   } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('analises')
     .select('id, nome, fonte, medicoes_total, medicoes_validas, criada_em')
     .eq('usuario_id', user.id)
     .order('criada_em', { ascending: false })
+
+  if (error) {
+    return (
+      <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-6 text-sm text-destructive">
+        Não foi possível carregar as análises. Tente novamente em instantes.
+      </div>
+    )
+  }
 
   const analises = (data ?? []) as Pick<
     AnaliseRow,
@@ -80,8 +88,15 @@ export default async function AnalisesPage() {
             </thead>
             <tbody className="divide-y">
               {analises.map((a) => (
-                <tr key={a.id} className="hover:bg-muted/30 transition-colors">
-                  <td className="px-4 py-3 font-medium">{a.nome}</td>
+                <tr key={a.id} className="relative hover:bg-muted/30 transition-colors">
+                  <td className="px-4 py-3 font-medium">
+                    <Link
+                      href={`/analise/${a.id}`}
+                      className="after:absolute after:inset-0 focus-visible:outline-none"
+                      aria-label={`Ver análise ${a.nome}`}
+                    />
+                    {a.nome}
+                  </td>
                   <td className="px-4 py-3 text-muted-foreground">
                     {FONTE_LABEL[a.fonte] ?? a.fonte}
                   </td>
@@ -92,10 +107,8 @@ export default async function AnalisesPage() {
                   <td className="px-4 py-3 text-muted-foreground">
                     {formatarData(a.criada_em)}
                   </td>
-                  <td className="px-4 py-3">
-                    <Link href={`/analise/${a.id}`} className="text-muted-foreground hover:text-foreground">
-                      <ChevronRight className="size-4" />
-                    </Link>
+                  <td className="px-4 py-3 text-muted-foreground" aria-hidden>
+                    <ChevronRight className="size-4" />
                   </td>
                 </tr>
               ))}

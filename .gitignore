@@ -36,3 +36,5 @@ Thumbs.db
 
 # Skills locais (instaladas por npx skills)
 .agents/
+
+.vercel
