@@ -4,8 +4,9 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { BarChart2, Upload } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import type { Route } from 'next'
 
-const LINKS = [
+const LINKS: { href: Route; label: string; icon: React.ElementType }[] = [
   { href: '/analises', label: 'Análises', icon: BarChart2 },
   { href: '/importar', label: 'Importar', icon: Upload },
 ]

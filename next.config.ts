@@ -48,9 +48,7 @@ const nextConfig: NextConfig = {
       },
     ]
   },
-  experimental: {
-    typedRoutes: true,
-  },
+  typedRoutes: true,
   // Bloqueia logs de dados em produção via rewrites não — feito na camada de lib
   logging: {
     fetches: {
