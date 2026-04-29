@@ -60,10 +60,14 @@ export async function salvarAnalise(
   for (const periodo of periodos_disponiveis) {
     try {
       linear[periodo] = calcularAnaliseLinear(comPeriodos, periodo)
-    } catch {}
+    } catch (e) {
+      if (process.env.NODE_ENV === 'development') console.error(`linear[${periodo}]`, e)
+    }
     try {
       nao_linear[periodo] = calcularAnaliseNaoLinear(comPeriodos, periodo)
-    } catch {}
+    } catch (e) {
+      if (process.env.NODE_ENV === 'development') console.error(`nao_linear[${periodo}]`, e)
+    }
   }
 
   // Descenso noturno — anexado ao resultado diurno quando ambos disponíveis
@@ -116,7 +120,10 @@ export async function salvarAnalise(
     const { error: errMed } = await supabase
       .from('medicoes')
       .insert(rows.slice(i, i + BATCH) as never)
-    if (errMed) return { erro: errMed.message }
+    if (errMed) {
+      await supabase.from('analises').delete().eq('id', analiseId)
+      return { erro: errMed.message }
+    }
   }
 
   return { id: analiseId }

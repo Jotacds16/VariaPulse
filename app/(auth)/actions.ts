@@ -57,7 +57,10 @@ export async function recuperarSenhaAction(
   if (!email) return { erro: 'Informe o seu email.' }
 
   const supabase = await createClient()
-  const { error } = await supabase.auth.resetPasswordForEmail(email)
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${siteUrl}/auth/callback?next=/redefinir-senha`,
+  })
 
   if (error) return { erro: traduzir(error.message) }
 

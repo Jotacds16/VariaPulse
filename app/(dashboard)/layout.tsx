@@ -16,7 +16,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="min-h-screen flex">
-      <nav className="w-56 border-r bg-white flex flex-col px-3 py-6 gap-1 shrink-0">
+      <nav className="w-56 border-r bg-background flex flex-col px-3 py-6 gap-1 shrink-0">
         <p className="text-sm font-semibold text-foreground mb-4 px-2">VariaPulse</p>
         <SidebarNav />
       </nav>

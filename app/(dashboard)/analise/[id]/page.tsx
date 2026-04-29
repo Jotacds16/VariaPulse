@@ -26,15 +26,23 @@ export default async function AnalisePage({ params }: PageProps) {
   } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('analises')
     .select('*')
     .eq('id', id)
     .eq('usuario_id', user.id)
     .single()
 
-  const analise = data as AnaliseRow | null
-  if (!analise) notFound()
+  if (error?.code === 'PGRST116') notFound()
+  if (error) {
+    return (
+      <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-6 text-sm text-destructive">
+        Não foi possível carregar a análise. Tente novamente em instantes.
+      </div>
+    )
+  }
+
+  const analise = data as AnaliseRow
 
   const dataFormatada = new Date(analise.criada_em).toLocaleDateString('pt-BR', {
     day: '2-digit',
