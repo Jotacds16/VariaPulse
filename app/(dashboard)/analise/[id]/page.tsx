@@ -3,6 +3,8 @@ import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronLeft } from 'lucide-react'
 import { AnaliseTabs } from './_components/analise-tabs'
+import { SumarioKpi } from './_components/sumario-kpi'
+import { BotaoRelatorio } from './_components/botao-relatorio'
 import type { AnaliseRow } from '@/lib/supabase/types'
 import type { FonteDados } from '@/types'
 
@@ -36,7 +38,7 @@ export default async function AnalisePage({ params }: PageProps) {
   if (error?.code === 'PGRST116') notFound()
   if (error) {
     return (
-      <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-6 text-sm text-destructive">
+      <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-sm text-red-700">
         Não foi possível carregar a análise. Tente novamente em instantes.
       </div>
     )
@@ -51,7 +53,7 @@ export default async function AnalisePage({ params }: PageProps) {
   })
 
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="space-y-6 max-w-3xl mx-auto w-full">
       <div>
         <Link
           href="/analises"
@@ -68,12 +70,20 @@ export default async function AnalisePage({ params }: PageProps) {
               {FONTE_LABEL[analise.fonte] ?? analise.fonte} &middot; {dataFormatada}
             </p>
           </div>
-          <div className="text-right shrink-0">
-            <p className="text-sm font-medium">{analise.medicoes_validas}</p>
-            <p className="text-xs text-muted-foreground">de {analise.medicoes_total} medições</p>
+          <div className="flex flex-col items-end gap-2 shrink-0">
+            <div className="text-right">
+              <p className="text-sm font-medium">{analise.medicoes_validas}</p>
+              <p className="text-xs text-muted-foreground">de {analise.medicoes_total} medições</p>
+            </div>
+            <BotaoRelatorio
+              analiseId={analise.id}
+              relatorioGerado={analise.relatorio_gerado}
+            />
           </div>
         </div>
       </div>
+
+      <SumarioKpi linear={analise.linear} />
 
       <AnaliseTabs
         analise={{
