@@ -11,10 +11,10 @@ import {
 } from '@/lib/importacao/periodos'
 import type { Medicao, FonteDados, Periodo, AnaliseLinear, AnaliseNaoLinear } from '@/types'
 import type { ConfigPeriodos } from '@/lib/importacao/periodos'
-import type { AnaliseRow, MedicaoRow } from '@/lib/supabase/types'
+import type { Database } from '@/lib/supabase/types'
 
-type AnaliseInsert = Omit<AnaliseRow, 'id' | 'criada_em'>
-type MedicaoInsert = Omit<MedicaoRow, 'id'>
+type AnaliseInsert = Database['public']['Tables']['analises']['Insert']
+type MedicaoInsert = Database['public']['Tables']['medicoes']['Insert']
 
 // Apenas os campos brutos — validação e períodos são atribuídos no servidor
 export interface MedicaoInput {
@@ -78,23 +78,21 @@ export async function salvarAnalise(
     }
   }
 
-  // supabase client não carrega Database generic (incompatibilidade @supabase/ssr 0.5.x
-  // com supabase-js 2.105+) — satisfies garante type-check local; cast any no insert.
-  const analiseInsert = {
+  const analiseInsert: AnaliseInsert = {
     usuario_id: user.id,
     nome: input.nome,
     fonte: input.fonte,
     medicoes_total: comPeriodos.length,
     medicoes_validas: comPeriodos.filter((m) => m.valida).length,
     periodos_disponiveis,
-    linear: linear as Record<Periodo, AnaliseLinear>,
-    nao_linear: nao_linear as Record<Periodo, AnaliseNaoLinear>,
+    linear: linear as unknown as AnaliseInsert['linear'],
+    nao_linear: nao_linear as unknown as AnaliseInsert['nao_linear'],
     relatorio_gerado: false,
-  } satisfies AnaliseInsert
+  }
 
   const { data: analise, error: erroAnalise } = await supabase
     .from('analises')
-    .insert(analiseInsert as never)
+    .insert(analiseInsert)
     .select('id')
     .single()
 
@@ -102,7 +100,7 @@ export async function salvarAnalise(
     return { erro: erroAnalise?.message ?? 'Erro desconhecido ao salvar análise.' }
   }
 
-  const analiseId = (analise as { id: string }).id
+  const analiseId = analise.id
   const BATCH = 500
   const rows: MedicaoInsert[] = comPeriodos.map((m) => ({
     analise_id: analiseId,
@@ -119,7 +117,7 @@ export async function salvarAnalise(
   for (let i = 0; i < rows.length; i += BATCH) {
     const { error: errMed } = await supabase
       .from('medicoes')
-      .insert(rows.slice(i, i + BATCH) as never)
+      .insert(rows.slice(i, i + BATCH))
     if (errMed) {
       await supabase.from('analises').delete().eq('id', analiseId)
       return { erro: errMed.message }

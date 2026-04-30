@@ -6,7 +6,7 @@ import { AnaliseTabs } from './_components/analise-tabs'
 import { SumarioKpi } from './_components/sumario-kpi'
 import { BotaoRelatorio } from './_components/botao-relatorio'
 import type { AnaliseRow } from '@/lib/supabase/types'
-import type { FonteDados } from '@/types'
+import type { FonteDados, Periodo, AnaliseLinear, AnaliseNaoLinear } from '@/types'
 
 const FONTE_LABEL: Record<FonteDados, string> = {
   consultorio: 'Consultório',
@@ -67,7 +67,7 @@ export default async function AnalisePage({ params }: PageProps) {
           <div>
             <h1 className="text-lg font-semibold">{analise.nome}</h1>
             <p className="text-sm text-muted-foreground mt-0.5">
-              {FONTE_LABEL[analise.fonte] ?? analise.fonte} &middot; {dataFormatada}
+              {FONTE_LABEL[analise.fonte as FonteDados] ?? analise.fonte} &middot; {dataFormatada}
             </p>
           </div>
           <div className="flex flex-col items-end gap-2 shrink-0">
@@ -83,13 +83,13 @@ export default async function AnalisePage({ params }: PageProps) {
         </div>
       </div>
 
-      <SumarioKpi linear={analise.linear} />
+      <SumarioKpi linear={analise.linear as unknown as Record<Periodo, AnaliseLinear> | null} />
 
       <AnaliseTabs
         analise={{
-          periodos_disponiveis: analise.periodos_disponiveis,
-          linear: analise.linear,
-          nao_linear: analise.nao_linear,
+          periodos_disponiveis: analise.periodos_disponiveis as Periodo[],
+          linear: analise.linear as unknown as Record<Periodo, AnaliseLinear> | null,
+          nao_linear: analise.nao_linear as unknown as Record<Periodo, AnaliseNaoLinear> | null,
         }}
       />
     </div>

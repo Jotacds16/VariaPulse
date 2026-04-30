@@ -1,57 +1,6 @@
-import type {
-  FonteDados,
-  Periodo,
-  AnaliseLinear,
-  AnaliseNaoLinear,
-  SecaoRelatorio,
-  FlagValidacao,
-} from '@/types'
+// Gerado automaticamente a partir do schema do Supabase.
+// Não editar manualmente — regenerar com: npx supabase gen types typescript
 
-// ---------------------------------------------------------------------------
-// Linhas do banco — refletem exatamente as colunas de cada tabela
-// ---------------------------------------------------------------------------
-
-export interface AnaliseRow {
-  id: string
-  usuario_id: string
-  criada_em: string
-  nome: string
-  fonte: FonteDados
-  medicoes_total: number
-  medicoes_validas: number
-  periodos_disponiveis: Periodo[]
-  linear: Record<Periodo, AnaliseLinear> | null
-  nao_linear: Record<Periodo, AnaliseNaoLinear> | null
-  relatorio_gerado: boolean
-}
-
-export interface MedicaoRow {
-  id: string
-  analise_id: string
-  usuario_id: string
-  timestamp: string
-  pas: number
-  pad: number
-  fc: number | null
-  periodo: Periodo | null
-  valida: boolean
-  flags: FlagValidacao[]
-}
-
-export interface RelatorioRow {
-  id: string
-  analise_id: string
-  usuario_id: string
-  gerado_em: string
-  periodos_incluidos: Periodo[]
-  conteudo: SecaoRelatorio[]
-}
-
-// ---------------------------------------------------------------------------
-// Mapa de tabelas para o cliente tipado do Supabase
-// ---------------------------------------------------------------------------
-
-// Tipo JSON genérico aceito pelo Supabase para colunas jsonb
 export type Json =
   | string
   | number
@@ -60,31 +9,156 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export interface Database {
+export type Database = {
+  __InternalSupabase: {
+    PostgrestVersion: '14.5'
+  }
   public: {
     Tables: {
       analises: {
-        Row: AnaliseRow
-        Insert: Omit<AnaliseRow, 'id' | 'criada_em'>
-        Update: Partial<Omit<AnaliseRow, 'id' | 'usuario_id' | 'criada_em'>>
+        Row: {
+          criada_em: string
+          fonte: string
+          id: string
+          linear: Json | null
+          medicoes_total: number
+          medicoes_validas: number
+          nao_linear: Json | null
+          nome: string
+          periodos_disponiveis: string[]
+          relatorio_gerado: boolean
+          usuario_id: string
+        }
+        Insert: {
+          criada_em?: string
+          fonte: string
+          id?: string
+          linear?: Json | null
+          medicoes_total: number
+          medicoes_validas: number
+          nao_linear?: Json | null
+          nome: string
+          periodos_disponiveis?: string[]
+          relatorio_gerado?: boolean
+          usuario_id: string
+        }
+        Update: {
+          criada_em?: string
+          fonte?: string
+          id?: string
+          linear?: Json | null
+          medicoes_total?: number
+          medicoes_validas?: number
+          nao_linear?: Json | null
+          nome?: string
+          periodos_disponiveis?: string[]
+          relatorio_gerado?: boolean
+          usuario_id?: string
+        }
         Relationships: []
       }
       medicoes: {
-        Row: MedicaoRow
-        Insert: Omit<MedicaoRow, 'id'>
-        Update: Partial<Omit<MedicaoRow, 'id' | 'analise_id' | 'usuario_id'>>
-        Relationships: []
+        Row: {
+          analise_id: string
+          fc: number | null
+          flags: string[]
+          id: string
+          pad: number
+          pas: number
+          periodo: string | null
+          timestamp: string
+          usuario_id: string
+          valida: boolean
+        }
+        Insert: {
+          analise_id: string
+          fc?: number | null
+          flags?: string[]
+          id?: string
+          pad: number
+          pas: number
+          periodo?: string | null
+          timestamp: string
+          usuario_id: string
+          valida?: boolean
+        }
+        Update: {
+          analise_id?: string
+          fc?: number | null
+          flags?: string[]
+          id?: string
+          pad?: number
+          pas?: number
+          periodo?: string | null
+          timestamp?: string
+          usuario_id?: string
+          valida?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'medicoes_analise_id_fkey'
+            columns: ['analise_id']
+            isOneToOne: false
+            referencedRelation: 'analises'
+            referencedColumns: ['id']
+          },
+        ]
       }
       relatorios: {
-        Row: RelatorioRow
-        Insert: Omit<RelatorioRow, 'id' | 'gerado_em'>
-        Update: Partial<Omit<RelatorioRow, 'id' | 'analise_id' | 'usuario_id' | 'gerado_em'>>
-        Relationships: []
+        Row: {
+          analise_id: string
+          conteudo: Json
+          gerado_em: string
+          id: string
+          periodos_incluidos: string[]
+          usuario_id: string
+        }
+        Insert: {
+          analise_id: string
+          conteudo?: Json
+          gerado_em?: string
+          id?: string
+          periodos_incluidos?: string[]
+          usuario_id: string
+        }
+        Update: {
+          analise_id?: string
+          conteudo?: Json
+          gerado_em?: string
+          id?: string
+          periodos_incluidos?: string[]
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'relatorios_analise_id_fkey'
+            columns: ['analise_id']
+            isOneToOne: false
+            referencedRelation: 'analises'
+            referencedColumns: ['id']
+          },
+        ]
       }
     }
-    Views: Record<string, never>
-    Functions: Record<string, never>
-    Enums: Record<string, never>
-    CompositeTypes: Record<string, never>
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      [_ in never]: never
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
 }
+
+// ---------------------------------------------------------------------------
+// Aliases convenientes — Row types das tabelas principais
+// ---------------------------------------------------------------------------
+
+export type AnaliseRow  = Database['public']['Tables']['analises']['Row']
+export type MedicaoRow  = Database['public']['Tables']['medicoes']['Row']
+export type RelatorioRow = Database['public']['Tables']['relatorios']['Row']

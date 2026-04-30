@@ -24,13 +24,13 @@ const PERIODO_LABEL: Record<Periodo, string> = {
 
 const DESCENSO_NARRATIVA: Record<DescensoNoturno['padrao'], string> = {
   dipper:
-    'O padrão dipper normal indica descenso noturno fisiológico adequado, com queda pressórica dentro do intervalo esperado (10 a 20%). Este padrão está associado ao menor risco cardiovascular entre os quatro fenótipos de descenso.',
+    'O padrão dipper normal indica descenso noturno fisiológico adequado, com queda pressórica dentro do intervalo esperado de 10 a 20%. Este fenótipo está associado ao menor risco cardiovascular entre os quatro padrões de descenso descritos na literatura, refletindo uma resposta autonômica preservada durante o ciclo sono-vigília.',
   non_dipper:
-    'O padrão non-dipper indica redução insuficiente da pressão arterial durante o sono (queda abaixo de 10%). Este fenótipo está associado a maior risco de acidente vascular cerebral, doença renal crónica e hipertrofia ventricular esquerda, independentemente dos valores médios diurnos.',
+    'O padrão non-dipper indica redução insuficiente da pressão arterial durante o período de sono, caracterizado por queda inferior a 10% em relação à média diurna. Este fenótipo está associado a maior incidência de acidente vascular cerebral, doença renal crônica e hipertrofia ventricular esquerda, independentemente dos valores médios diurnos, conforme demonstrado em estudos prospectivos de base populacional.',
   riser:
-    'O padrão riser representa uma inversão do padrão fisiológico, com a pressão noturna superando a diurna. É o fenótipo de maior risco cardiovascular e está frequentemente associado a síndrome de apneia obstrutiva do sono, diabetes e insuficiência renal avançada.',
+    'O padrão riser representa uma inversão do ritmo pressórico circadiano fisiológico, com a pressão noturna superando a média diurna (descenso negativo). Constitui o fenótipo de maior risco cardiovascular entre os quatro padrões e está frequentemente associado a síndrome de apneia obstrutiva do sono, nefropatia diabética avançada e disautonomia.',
   extreme_dipper:
-    'O padrão extreme dipper indica descenso noturno excessivo (superior a 20%). Embora possa parecer favorável, este fenótipo pode associar-se a hipoperfusão noturna de órgãos-alvo, sendo de particular relevância em idosos e pacientes com doença cerebrovascular estabelecida.',
+    'O padrão extreme dipper é definido por uma redução noturna superior a 20% em relação à média diurna. Embora possa ser interpretado superficialmente como protetor, este fenótipo pode associar-se à hipoperfusão noturna de órgãos-alvo — em particular do sistema nervoso central — sendo de particular relevância em pacientes idosos, portadores de doença cerebrovascular estabelecida ou com estenose carotídea significativa.',
 }
 
 function fmt1(v: number): string {
@@ -38,8 +38,8 @@ function fmt1(v: number): string {
 }
 
 function gerarSecaoDadosEstudo(analise: AnaliseRow): SecaoRelatorio {
-  const fonte = FONTE_LABEL[analise.fonte] ?? analise.fonte
-  const periodos = analise.periodos_disponiveis
+  const fonte = FONTE_LABEL[analise.fonte as FonteDados] ?? analise.fonte
+  const periodos = (analise.periodos_disponiveis as Periodo[])
     .map((p) => PERIODO_LABEL[p] ?? p)
     .join(', ')
   const data = new Date(analise.criada_em).toLocaleDateString('pt-BR', {
@@ -52,13 +52,22 @@ function gerarSecaoDadosEstudo(analise: AnaliseRow): SecaoRelatorio {
       ? Math.round((analise.medicoes_validas / analise.medicoes_total) * 100)
       : 0
 
+  const qualidadeTaxa =
+    taxaValidade >= 90
+      ? 'excelente qualidade técnica'
+      : taxaValidade >= 70
+      ? 'qualidade técnica adequada'
+      : 'qualidade técnica reduzida, o que pode comprometer a representatividade das estimativas'
+
   return {
-    titulo: 'Dados do estudo',
+    titulo: 'Dados do Estudo',
     conteudo:
-      `Fonte de dados: ${fonte}. ` +
-      `Análise realizada em ${data}. ` +
-      `Total de medições: ${analise.medicoes_total}, das quais ${analise.medicoes_validas} foram consideradas válidas (${taxaValidade}% de aproveitamento). ` +
-      `Períodos com dados disponíveis: ${periodos}.`,
+      `O presente relatório foi gerado a partir de dados provenientes de ${fonte}, com análise realizada em ${data}. ` +
+      `A série temporal incluiu ${analise.medicoes_total} medições no total, das quais ${analise.medicoes_validas} foram classificadas como válidas após aplicação dos critérios de validação clínica e estatística, ` +
+      `correspondendo a uma taxa de aproveitamento de ${taxaValidade}% — indicativa de ${qualidadeTaxa}. ` +
+      `Os períodos com dados disponíveis para análise foram: ${periodos}. ` +
+      `A validação individual de cada medição seguiu critérios de plausibilidade fisiológica (limites pressóricos e de frequência cardíaca), ` +
+      `detecção de duplicatas temporais e avaliação de intervalos entre medições, conforme recomendações das diretrizes da Sociedade Europeia de Hipertensão para monitorização ambulatorial.`,
   }
 }
 
@@ -76,6 +85,13 @@ function gerarSecaoPressaoArterial(
   const arvPasElevada = linear.vrm_pas > 12
   const arvPadElevada = linear.vrm_pad > 9
 
+  const limiteStr =
+    periodo === 'noturno'
+      ? '(referência < 120/70 mmHg para o período noturno)'
+      : periodo === 'manha_despertar'
+      ? '(referência < 135/85 mmHg para o despertar)'
+      : '(referência < 130/80 mmHg conforme 7ª Diretriz Brasileira de Hipertensão)'
+
   if (pasElevada || padElevada) {
     const componentes = [
       pasElevada ? `PAS média de ${fmt1(linear.media_pas)} mmHg (referência < 130 mmHg)` : null,
@@ -88,27 +104,41 @@ function gerarSecaoPressaoArterial(
 
   if (dpPasElevado || dpPadElevado) {
     alertas.push(
-      'Variabilidade elevada pelo desvio-padrão — considerar avaliação clínica complementar.'
+      'Variabilidade pelo desvio-padrão acima dos limiares de referência — considerar avaliação clínica complementar para investigação de causas estruturais ou autonômicas.'
     )
   }
 
   if (arvPasElevada || arvPadElevada) {
     alertas.push(
-      'ARV elevada — variabilidade sequencial aumentada, associada a maior risco de lesão de órgão-alvo.'
+      'ARV elevada — variabilidade sequencial aumentada, associada a maior risco de lesão de órgão-alvo independentemente da pressão arterial média.'
     )
   }
 
-  const conteudo =
-    `Período ${label.toLowerCase()} (n = ${linear.n} medições válidas). ` +
-    `Pressão arterial média: ${fmt1(linear.media_pas)}/${fmt1(linear.media_pad)} mmHg. ` +
-    `Amplitude: PAS ${linear.min_pas}–${linear.max_pas} mmHg; PAD ${linear.min_pad}–${linear.max_pad} mmHg. ` +
-    `Desvio-padrão: PAS ${fmt1(linear.dp_pas)} mmHg${dpPasElevado ? ' (elevado)' : ''}, ` +
-    `PAD ${fmt1(linear.dp_pad)} mmHg${dpPadElevado ? ' (elevado)' : ''}. ` +
-    `Coeficiente de variação: PAS ${fmt1(linear.cv_pas)}%, PAD ${fmt1(linear.cv_pad)}%. ` +
-    `ARV: PAS ${fmt1(linear.vrm_pas)} mmHg${arvPasElevada ? ' (elevado)' : ''}, ` +
-    `PAD ${fmt1(linear.vrm_pad)} mmHg${arvPadElevada ? ' (elevado)' : ''}.`
+  const interpretacaoMedia =
+    !pasElevada && !padElevada
+      ? `Os valores médios encontram-se dentro dos limiares de normalidade ${limiteStr}.`
+      : `Os valores médios excedem os limiares de referência ${limiteStr}, indicando necessidade de avaliação clínica individualizada.`
 
-  return { titulo: `Pressão arterial — ${label}`, conteudo, alertas }
+  const interpretacaoVRM =
+    arvPasElevada || arvPadElevada
+      ? 'A Variabilidade Real Média (VRM ou ARV, do inglês Average Real Variability), calculada como a média das diferenças absolutas entre medições consecutivas, encontra-se elevada, o que é clinicamente relevante dado que sua associação com lesão de órgão-alvo é independente dos valores médios absolutos. '
+      : 'A Variabilidade Real Média (VRM ou ARV), obtida pela média das diferenças absolutas entre medições consecutivas, situa-se dentro dos limites esperados para o período. '
+
+  const conteudo =
+    `No período ${label.toLowerCase()}, foram analisadas ${linear.n} medições válidas. ` +
+    `A pressão arterial média obtida foi de ${fmt1(linear.media_pas)}/${fmt1(linear.media_pad)} mmHg ${limiteStr}. ` +
+    `${interpretacaoMedia} ` +
+    `A amplitude pressórica observada compreendeu valores entre ${linear.min_pas} e ${linear.max_pas} mmHg para a PAS, ` +
+    `e entre ${linear.min_pad} e ${linear.max_pad} mmHg para a PAD, ` +
+    `refletindo a dispersão total da série neste período. ` +
+    `O desvio-padrão, indicador clássico de variabilidade intraindividual, foi de ${fmt1(linear.dp_pas)} mmHg${dpPasElevado ? ' (acima do limiar de referência de 15 mmHg para PAS)' : ''} ` +
+    `para a PAS e ${fmt1(linear.dp_pad)} mmHg${dpPadElevado ? ' (acima do limiar de referência de 12 mmHg para PAD)' : ''} para a PAD. ` +
+    `O coeficiente de variação, que expressa a dispersão relativa em função da média, foi de ${fmt1(linear.cv_pas)}% para a PAS e ${fmt1(linear.cv_pad)}% para a PAD. ` +
+    interpretacaoVRM +
+    `Os valores de VRM foram ${fmt1(linear.vrm_pas)} mmHg${arvPasElevada ? ' (elevado)' : ''} para a PAS ` +
+    `e ${fmt1(linear.vrm_pad)} mmHg${arvPadElevada ? ' (elevado)' : ''} para a PAD.`
+
+  return { titulo: `Pressão Arterial — ${label}`, conteudo, alertas }
 }
 
 function gerarSecaoDescensoNoturno(
@@ -120,7 +150,7 @@ function gerarSecaoDescensoNoturno(
 
   if (descenso.padrao !== 'dipper') {
     alertas.push(
-      `Padrão ${descenso.padrao.replace('_', '-')} identificado — avaliação clínica recomendada.`
+      `Padrão ${descenso.padrao.replace('_', '-')} identificado — avaliação clínica recomendada para investigação etiológica e definição terapêutica.`
     )
   }
 
@@ -131,16 +161,21 @@ function gerarSecaoDescensoNoturno(
   const confiancaBaixa = n_diurno < 7 || n_noturno < 5
   if (confiancaBaixa) {
     alertas.push(
-      `Confiança reduzida: recomendado mínimo de 7 medições diurnas e 5 nocturnas (disponíveis: ${n_diurno} diurnas, ${n_noturno} nocturnas).`
+      `Confiança reduzida: recomendado mínimo de 7 medições diurnas e 5 noturnas para classificação confiável do padrão (disponíveis: ${n_diurno} diurnas, ${n_noturno} noturnas).`
     )
   }
 
   const conteudo =
-    `Padrão de descenso: ${descenso.padrao.replace('_', '-')}. ` +
-    `Redução percentual noturna: PAS ${fmt1(descenso.pas_percentual)}%, PAD ${fmt1(descenso.pad_percentual)}%. ` +
+    `O descenso noturno representa a redução percentual da pressão arterial durante o período de sono em relação ao período de vigília, ` +
+    `sendo calculado pela fórmula: [(média diurna − média noturna) / média diurna] × 100. ` +
+    `A classificação do padrão circadiano pressórico segue a nomenclatura proposta por Staessen et al. e adotada pelas diretrizes europeias de MAPA: ` +
+    `dipper (redução de 10 a 20%), non-dipper (redução inferior a 10%), extreme dipper (redução superior a 20%) e riser (pressão noturna superior à diurna). ` +
+    `Nesta análise, o descenso noturno observado foi de ${fmt1(descenso.pas_percentual)}% para a pressão sistólica ` +
+    `e de ${fmt1(descenso.pad_percentual)}% para a pressão diastólica, ` +
+    `classificando o perfil pressórico como padrão ${descenso.padrao.replace('_', '-')}. ` +
     DESCENSO_NARRATIVA[descenso.padrao]
 
-  return { titulo: 'Descenso noturno', conteudo, alertas }
+  return { titulo: 'Descenso Noturno e Padrão Circadiano', conteudo, alertas }
 }
 
 function gerarSecaoNaoLinear(
@@ -156,40 +191,73 @@ function gerarSecaoNaoLinear(
 
   if (semDados && nl.alertas.length === 0) return null
 
-  partes.push(`Período ${label.toLowerCase()} (n = ${nl.n} medições válidas).`)
+  partes.push(
+    `No período ${label.toLowerCase()} (n = ${nl.n} medições válidas), ` +
+    `foram aplicadas técnicas de análise não linear para quantificação da complexidade e regularidade da série temporal pressórica. ` +
+    `Esses métodos capturam dimensões da dinâmica pressórica inacessíveis às métricas lineares convencionais, ` +
+    `sendo particularmente relevantes para a avaliação do tônus autonômico e da integridade dos mecanismos regulatórios cardiovasculares.`
+  )
 
   if (nl.poincare) {
     const { sd1, sd2, razao_sd1_sd2 } = nl.poincare
+    const interpretacaoRazao =
+      razao_sd1_sd2 < 0.5
+        ? 'indicando predominância de variabilidade de longo prazo'
+        : razao_sd1_sd2 > 1.5
+        ? 'indicando predominância de variabilidade de curto prazo'
+        : 'compatível com equilíbrio entre variabilidades de curto e longo prazo'
     partes.push(
-      `Análise de Poincaré: SD1 = ${fmt1(sd1)} mmHg (variabilidade de curto prazo), ` +
-      `SD2 = ${fmt1(sd2)} mmHg (variabilidade de longo prazo), ` +
-      `razão SD1/SD2 = ${razao_sd1_sd2.toFixed(3)}.`
+      `A análise do diagrama de Poincaré, representação geométrica da autocorrelação da série temporal, ` +
+      `revelou SD1 de ${fmt1(sd1)} mmHg (variabilidade de curto prazo, análoga à modulação parassimpática) ` +
+      `e SD2 de ${fmt1(sd2)} mmHg (variabilidade de longo prazo, refletindo regulação simpática e barorreflexa). ` +
+      `A razão SD1/SD2 foi de ${razao_sd1_sd2.toFixed(3)}, ${interpretacaoRazao}.`
     )
   }
 
   if (nl.entropia_aproximada !== null || nl.entropia_amostral !== null) {
     const apen =
-      nl.entropia_aproximada !== null ? `ApEn = ${nl.entropia_aproximada.toFixed(3)}` : 'ApEn indisponível'
+      nl.entropia_aproximada !== null
+        ? `Entropia Aproximada (ApEn) de ${nl.entropia_aproximada.toFixed(3)}`
+        : 'ApEn indisponível'
     const sampen =
-      nl.entropia_amostral !== null ? `SampEn = ${nl.entropia_amostral.toFixed(3)}` : 'SampEn indisponível'
-    partes.push(`Entropias: ${apen}; ${sampen}.`)
+      nl.entropia_amostral !== null
+        ? `Entropia Amostral (SampEn) de ${nl.entropia_amostral.toFixed(3)}`
+        : 'SampEn indisponível'
+    partes.push(
+      `As métricas de complexidade revelaram ${apen} e ${sampen}. ` +
+      `Valores de entropia mais elevados refletem maior irregularidade e complexidade da série, ` +
+      `enquanto valores reduzidos sugerem maior regularidade, potencialmente indicativa de comprometimento da regulação autonômica.`
+    )
   }
 
   if (nl.dfa) {
+    const interpretacaoAlpha1 =
+      nl.dfa.alpha1 < 0.5
+        ? 'indicativo de anticorrelações de curto prazo'
+        : nl.dfa.alpha1 > 1.5
+        ? 'sugestivo de dinâmica não estacionária de curto prazo'
+        : nl.dfa.alpha1 >= 0.5 && nl.dfa.alpha1 <= 1.0
+        ? 'compatível com correlações de longo alcance fisiológicas'
+        : 'indicativo de dinâmica com correlações fortes de curto prazo'
     partes.push(
-      `DFA: α1 = ${fmt1(nl.dfa.alpha1)} (correlações de curto prazo), ` +
-      `α2 = ${fmt1(nl.dfa.alpha2)} (correlações de longo prazo).`
+      `A Análise de Flutuações Destendenciadas (DFA) quantificou as correlações fractais da série temporal. ` +
+      `O expoente α1 de ${fmt1(nl.dfa.alpha1)} avalia correlações de curto prazo (escalas 4–16), ` +
+      `${interpretacaoAlpha1}. ` +
+      `O expoente α2 de ${fmt1(nl.dfa.alpha2)} reflete correlações de longo prazo (escalas 16–64), ` +
+      `avaliando a organização fractal global da série.`
     )
   }
 
   if (nl.alertas.length > 0) {
     for (const a of nl.alertas) {
-      alertas.push(`${a.metodo}: dados insuficientes (mín. ${a.minimo_recomendado}, disponíveis: ${a.disponivel}).`)
+      alertas.push(
+        `${a.metodo}: número de observações insuficiente para estimativa confiável (mínimo recomendado: ${a.minimo_recomendado}; disponíveis: ${a.disponivel}).`
+      )
     }
   }
 
   return {
-    titulo: `Variabilidade não linear — ${label}`,
+    titulo: `Análise Não Linear — ${label}`,
     conteudo: partes.join(' '),
     alertas,
   }
@@ -206,23 +274,23 @@ function gerarSecaoConsideracoes(analise: AnaliseRow): SecaoRelatorio | null {
   if (taxaValidade < 0.7) {
     alertas.push(
       `Taxa de validade das medições abaixo de 70% (${Math.round(taxaValidade * 100)}%). ` +
-      'Interpretar os resultados com cautela.'
+      'As estimativas estatísticas devem ser interpretadas com cautela, pois a subrepresentação de determinados períodos pode introduzir viés nas médias e métricas de variabilidade.'
     )
   }
 
   if (analise.medicoes_validas < 20) {
     alertas.push(
       `Número de medições válidas reduzido (n = ${analise.medicoes_validas}). ` +
-      'Estimativas estatísticas menos estáveis — resultados devem ser contextualizados clinicamente.'
+      'Com amostras inferiores a 20 observações, as estimativas de desvio-padrão, coeficiente de variação e métricas não lineares apresentam maior instabilidade estatística. Os resultados devem ser contextualizados clinicamente.'
     )
   }
 
   if (alertas.length === 0) return null
 
   return {
-    titulo: 'Considerações e limitações',
+    titulo: 'Considerações Metodológicas e Limitações',
     conteudo:
-      'Os seguintes pontos devem ser considerados na interpretação deste relatório:',
+      'A interpretação dos resultados deste relatório deve considerar as seguintes limitações identificadas na base de dados analisada:',
     alertas,
   }
 }
@@ -235,24 +303,26 @@ export function gerarConteudoRelatorio(analise: AnaliseRow): {
   periodos: Periodo[]
   secoes: SecaoRelatorio[]
 } {
-  const periodos = analise.periodos_disponiveis
+  const periodos = analise.periodos_disponiveis as Periodo[]
+  const linear = analise.linear as unknown as Record<Periodo, AnaliseLinear> | null
+  const nao_linear = analise.nao_linear as unknown as Record<Periodo, AnaliseNaoLinear> | null
   const secoes: SecaoRelatorio[] = []
 
   secoes.push(gerarSecaoDadosEstudo(analise))
 
   // Seções lineares por período
-  if (analise.linear) {
+  if (linear) {
     const ordem: Periodo[] = ['total', 'diurno', 'noturno', 'manha_despertar']
     for (const periodo of ordem) {
       if (!periodos.includes(periodo)) continue
-      const linear = analise.linear[periodo]
-      if (!linear) continue
-      secoes.push(gerarSecaoPressaoArterial(linear, periodo))
+      const lin = linear[periodo]
+      if (!lin) continue
+      secoes.push(gerarSecaoPressaoArterial(lin, periodo))
     }
 
-    // Descenso noturno — está no resultado diurno quando ambos períodos disponíveis
-    const linearDiurno = analise.linear['diurno']
-    const linearNoturno = analise.linear['noturno']
+    // Descenso noturno — presente quando ambos os períodos diurno e noturno estão disponíveis
+    const linearDiurno = linear['diurno']
+    const linearNoturno = linear['noturno']
     if (linearDiurno?.descenso_noturno && linearNoturno) {
       secoes.push(
         gerarSecaoDescensoNoturno(
@@ -265,11 +335,11 @@ export function gerarConteudoRelatorio(analise: AnaliseRow): {
   }
 
   // Seções não lineares por período
-  if (analise.nao_linear) {
+  if (nao_linear) {
     const ordem: Periodo[] = ['total', 'diurno', 'noturno', 'manha_despertar']
     for (const periodo of ordem) {
       if (!periodos.includes(periodo)) continue
-      const nl = analise.nao_linear[periodo]
+      const nl = nao_linear[periodo]
       if (!nl) continue
       const secao = gerarSecaoNaoLinear(nl, periodo)
       if (secao) secoes.push(secao)

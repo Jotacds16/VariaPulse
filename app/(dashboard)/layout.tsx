@@ -19,7 +19,7 @@ export default async function DashboardLayout({
   return (
     <div className="min-h-screen flex">
       {/* Sidebar */}
-      <nav className="w-64 border-r bg-background flex flex-col shrink-0">
+      <nav className="print:hidden w-64 border-r bg-background flex flex-col shrink-0">
         {/* Logo */}
         <div className="px-5 py-6 border-b">
           <div className="flex items-center gap-3">
@@ -43,7 +43,7 @@ export default async function DashboardLayout({
 
       {/* Coluna direita */}
       <div className="flex-1 flex flex-col min-w-0">
-        <MenuBar email={user.email ?? ''} />
+        <div className="print:hidden"><MenuBar email={user.email ?? ''} /></div>
         <main className="flex-1 p-8 bg-muted/30">{children}</main>
       </div>
     </div>

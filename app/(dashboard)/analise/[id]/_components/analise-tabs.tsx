@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
-import type { AnaliseRow } from '@/lib/supabase/types'
 import type { Periodo, AnaliseLinear, AnaliseNaoLinear } from '@/types'
 
 const PERIODO_LABEL: Record<Periodo, string> = {
@@ -179,7 +178,11 @@ function CardNaoLinear({ nl, periodo }: { nl: AnaliseNaoLinear; periodo: Periodo
 type Tab = 'linear' | 'nao_linear'
 
 interface Props {
-  analise: Pick<AnaliseRow, 'periodos_disponiveis' | 'linear' | 'nao_linear'>
+  analise: {
+    periodos_disponiveis: Periodo[]
+    linear: Record<Periodo, AnaliseLinear> | null
+    nao_linear: Record<Periodo, AnaliseNaoLinear> | null
+  }
 }
 
 export function AnaliseTabs({ analise }: Props) {

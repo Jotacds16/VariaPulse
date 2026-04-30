@@ -3,9 +3,9 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { gerarConteudoRelatorio } from '@/lib/relatorio/gerador'
-import type { AnaliseRow, RelatorioRow } from '@/lib/supabase/types'
+import type { Database, AnaliseRow } from '@/lib/supabase/types'
 
-type RelatorioInsert = Omit<RelatorioRow, 'id' | 'gerado_em'>
+type RelatorioInsert = Database['public']['Tables']['relatorios']['Insert']
 
 export async function gerarRelatorio(
   analiseId: string
@@ -30,16 +30,16 @@ export async function gerarRelatorio(
   const analise = data as AnaliseRow
   const { periodos, secoes } = gerarConteudoRelatorio(analise)
 
-  const relatorioInsert = {
+  const relatorioInsert: RelatorioInsert = {
     analise_id: analiseId,
     usuario_id: user.id,
     periodos_incluidos: periodos,
-    conteudo: secoes,
-  } satisfies RelatorioInsert
+    conteudo: secoes as unknown as RelatorioInsert['conteudo'],
+  }
 
   const { data: relatorio, error: erroRel } = await supabase
     .from('relatorios')
-    .insert(relatorioInsert as never)
+    .insert(relatorioInsert)
     .select('id')
     .single()
 
@@ -49,8 +49,8 @@ export async function gerarRelatorio(
 
   await supabase
     .from('analises')
-    .update({ relatorio_gerado: true } as never)
+    .update({ relatorio_gerado: true })
     .eq('id', analiseId)
 
-  return { id: (relatorio as { id: string }).id }
+  return { id: relatorio.id }
 }
