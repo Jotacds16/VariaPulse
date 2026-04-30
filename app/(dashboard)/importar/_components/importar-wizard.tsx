@@ -57,12 +57,17 @@ const ESTADO_INICIAL: Estado = {
 export function ImportarWizard() {
   const [estado, setEstado] = useState<Estado>(ESTADO_INICIAL)
   const [processando, setProcessando] = useState(false)
+  const [mensagemProcessando, setMensagemProcessando] = useState('A processar...')
   const [salvando, startSalvando] = useTransition()
   const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
 
   const processarArquivo = useCallback(
     async (file: File) => {
+      const extensao = file.name.split('.').pop()?.toLowerCase()
+      setMensagemProcessando(
+        extensao === 'pdf' ? 'A extrair dados do PDF...' : 'A processar...'
+      )
       setProcessando(true)
       setEstado((s) => ({ ...s, erroUpload: null }))
       try {
@@ -185,13 +190,13 @@ export function ImportarWizard() {
           {processando ? (
             <div className="flex flex-col items-center gap-2 text-muted-foreground">
               <Loader2 className="size-8 animate-spin" />
-              <p className="text-sm">A processar...</p>
+              <p className="text-sm">{mensagemProcessando}</p>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-2 text-muted-foreground">
               <Upload className="size-8" />
               <p className="text-sm font-medium">Solte o arquivo ou clique para selecionar</p>
-              <p className="text-xs">CSV, XLSX ou TXT</p>
+              <p className="text-xs">CSV, XLSX, TXT ou PDF</p>
             </div>
           )}
         </div>
@@ -199,7 +204,7 @@ export function ImportarWizard() {
         <input
           ref={inputRef}
           type="file"
-          accept=".csv,.xlsx,.txt"
+          accept=".csv,.xlsx,.txt,.pdf"
           className="hidden"
           onChange={onSelecionar}
         />

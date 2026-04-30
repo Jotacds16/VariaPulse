@@ -37,4 +37,7 @@ Thumbs.db
 # Skills locais (instaladas por npx skills)
 .agents/
 
+# Claude Code — configurações locais do editor
+.claude/
+
 .vercel

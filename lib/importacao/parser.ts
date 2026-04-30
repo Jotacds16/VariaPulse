@@ -14,8 +14,18 @@ export async function parseArquivo(file: File): Promise<ArquivoImportado> {
   const nome_original = file.name
   const extensao = nome_original.split('.').pop()?.toLowerCase()
 
-  if (!extensao || !['csv', 'xlsx', 'txt'].includes(extensao)) {
-    throw new Error(`Formato não suportado: .${extensao}. Use CSV, XLSX ou TXT.`)
+  if (!extensao || !['csv', 'xlsx', 'txt', 'pdf'].includes(extensao)) {
+    throw new Error(`Formato não suportado: .${extensao}. Use CSV, XLSX, TXT ou PDF.`)
+  }
+
+  if (extensao === 'pdf') {
+    const { extrairCSVdoPDF } = await import('./pdf')
+    const csvString = await extrairCSVdoPDF(file)
+    const arquivoCSV = new File([csvString], nome_original.replace(/\.pdf$/i, '.csv'), {
+      type: 'text/csv',
+    })
+    const resultado = await parseArquivo(arquivoCSV)
+    return { ...resultado, nome_original, tipo: 'pdf' }
   }
 
   const tipo = extensao as 'csv' | 'xlsx' | 'txt'

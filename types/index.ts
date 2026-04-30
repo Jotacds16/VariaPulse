@@ -102,7 +102,7 @@ export interface Analise {
 // Arquivo importado (antes de virar Analise)
 export interface ArquivoImportado {
   nome_original: string
-  tipo: 'csv' | 'xlsx' | 'txt'
+  tipo: 'csv' | 'xlsx' | 'txt' | 'pdf'
   total_linhas: number
   medicoes_parseadas: Medicao[]
   erros_parse: ErroParse[]

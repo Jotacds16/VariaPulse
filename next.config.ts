@@ -40,6 +40,11 @@ const securityHeaders = [
 ]
 
 const nextConfig: NextConfig = {
+  webpack: (config) => {
+    // pdfjs-dist tenta importar canvas no lado servidor — desabilita para evitar erro de build
+    config.resolve.alias = { ...config.resolve.alias, canvas: false }
+    return config
+  },
   async headers() {
     return [
       {
