@@ -60,7 +60,7 @@ export default async function RelatoriosPage() {
       <div>
         <h1 className="text-lg font-semibold">Relatórios</h1>
         <p className="text-sm text-muted-foreground">
-          Relatórios clínicos gerados a partir das análises
+          Relatórios de pesquisa gerados a partir das análises
         </p>
       </div>
 

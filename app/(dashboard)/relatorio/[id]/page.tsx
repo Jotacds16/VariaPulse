@@ -123,7 +123,7 @@ export default async function RelatorioPage({ params }: PageProps) {
           <div className="flex items-start justify-between gap-6 mb-5">
             <div>
               <p className="text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground mb-1">
-                Relatório clínico
+                Relatório de pesquisa
               </p>
               <h1 className="text-lg font-bold leading-snug">
                 Análise de Pressão Arterial
@@ -146,7 +146,11 @@ export default async function RelatorioPage({ params }: PageProps) {
             </span>
             <span className="text-xs text-muted-foreground">
               <span className="font-medium text-foreground/70">Sistema</span>{' '}
-              VariaPulse — Análise computacional de variabilidade pressórica
+              VariaPulse v0.1.0 — Análise computacional de variabilidade pressórica
+            </span>
+            <span className="text-xs text-muted-foreground">
+              <span className="font-medium text-foreground/70">Uso</span>{' '}
+              Exclusivo para pesquisa e ensino acadêmico
             </span>
           </div>
         </div>
@@ -177,14 +181,18 @@ export default async function RelatorioPage({ params }: PageProps) {
           </ol>
         </div>
 
-        {/* Rodapé — nota clínica */}
-        <div className="px-10 py-5 border-t">
+        {/* Rodapé — nota de uso */}
+        <div className="px-10 py-5 border-t space-y-2">
           <p className="text-[0.7rem] leading-relaxed text-muted-foreground italic">
-            Este relatório é gerado automaticamente com base nos dados importados e nas análises
-            calculadas pelo VariaPulse. Os resultados têm caráter auxiliar e informativo,
-            não substituindo a avaliação clínica individualizada realizada por profissional de
-            saúde habilitado. A interpretação definitiva dos achados deve considerar o contexto
-            clínico completo do paciente.
+            Este relatório destina-se exclusivamente a fins de pesquisa e ensino acadêmico,
+            no âmbito do Instituto de Hipertensão Arterial da Universidade Federal de Goiás (UFG).
+            É vedado seu uso para tomada de decisão clínica individual ou diagnóstico de pacientes.
+          </p>
+          <p className="text-[0.7rem] leading-relaxed text-muted-foreground italic">
+            Os resultados são gerados automaticamente pelo VariaPulse v0.1.0 com base nos dados
+            importados e têm caráter auxiliar e informativo. Não substituem a avaliação clínica
+            individualizada por profissional de saúde habilitado. A interpretação dos achados
+            deve considerar o contexto clínico completo e as limitações metodológicas descritas neste relatório.
           </p>
         </div>
       </div>
