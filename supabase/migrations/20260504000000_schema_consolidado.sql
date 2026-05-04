@@ -1,12 +1,12 @@
 -- =============================================================================
--- VariaPulse — Schema inicial
+-- VariaPulse — Schema consolidado (fonte única de verdade)
+-- Gerado em 2026-05-04. Representa o estado real do banco em produção.
+-- Substitui: 0001_schema_inicial.sql, 20260430000000_initial_schema.sql,
+--            20260430000001_fix_rls_update_policies.sql
 -- =============================================================================
 
 -- ---------------------------------------------------------------------------
 -- analises
--- Armazena metadados e resultados computados de cada análise.
--- Os resultados (linear, nao_linear) são JSONB: sempre carregados juntos
--- e nunca consultados por campo interno — não há ganho em normalizar.
 -- ---------------------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS analises (
@@ -19,9 +19,7 @@ CREATE TABLE IF NOT EXISTS analises (
   medicoes_total       integer     NOT NULL CHECK (medicoes_total >= 0),
   medicoes_validas     integer     NOT NULL CHECK (medicoes_validas >= 0),
   periodos_disponiveis text[]      NOT NULL DEFAULT '{}',
-  -- Record<Periodo, AnaliseLinear> — null até o cálculo ser concluído
   linear               jsonb,
-  -- Record<Periodo, AnaliseNaoLinear> — null até o cálculo ser concluído
   nao_linear           jsonb,
   relatorio_gerado     boolean     NOT NULL DEFAULT false
 );
@@ -32,32 +30,27 @@ CREATE INDEX IF NOT EXISTS analises_usuario_id_idx
 CREATE INDEX IF NOT EXISTS analises_criada_em_idx
   ON analises (usuario_id, criada_em DESC);
 
--- RLS
 ALTER TABLE analises ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "usuarios veem apenas suas analises"
   ON analises FOR SELECT
-  USING (auth.uid() = usuario_id);
+  USING ((SELECT auth.uid()) = usuario_id);
 
 CREATE POLICY "usuarios criam suas analises"
   ON analises FOR INSERT
-  WITH CHECK (auth.uid() = usuario_id);
+  WITH CHECK ((SELECT auth.uid()) = usuario_id);
 
 CREATE POLICY "usuarios atualizam suas analises"
   ON analises FOR UPDATE
-  USING (auth.uid() = usuario_id);
+  USING    ((SELECT auth.uid()) = usuario_id)
+  WITH CHECK ((SELECT auth.uid()) = usuario_id);
 
 CREATE POLICY "usuarios deletam suas analises"
   ON analises FOR DELETE
-  USING (auth.uid() = usuario_id);
-
+  USING ((SELECT auth.uid()) = usuario_id);
 
 -- ---------------------------------------------------------------------------
 -- medicoes
--- Medições individuais vinculadas a uma análise.
--- PAS/PAD como smallint (mmHg — valores entre ~30 e ~300).
--- FC como smallint (bpm — valores entre ~20 e ~250).
--- flags como text[] para manter flexibilidade sem enum rígido.
 -- ---------------------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS medicoes (
@@ -79,31 +72,31 @@ CREATE INDEX IF NOT EXISTS medicoes_analise_id_idx
 CREATE INDEX IF NOT EXISTS medicoes_usuario_id_idx
   ON medicoes (usuario_id);
 
--- Índice parcial — medições inválidas raramente são consultadas
 CREATE INDEX IF NOT EXISTS medicoes_validas_idx
   ON medicoes (analise_id, periodo)
   WHERE valida = true;
 
--- RLS
 ALTER TABLE medicoes ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "usuarios veem apenas suas medicoes"
   ON medicoes FOR SELECT
-  USING (auth.uid() = usuario_id);
+  USING ((SELECT auth.uid()) = usuario_id);
 
 CREATE POLICY "usuarios criam suas medicoes"
   ON medicoes FOR INSERT
-  WITH CHECK (auth.uid() = usuario_id);
+  WITH CHECK ((SELECT auth.uid()) = usuario_id);
+
+CREATE POLICY "usuarios atualizam suas medicoes"
+  ON medicoes FOR UPDATE
+  USING    ((SELECT auth.uid()) = usuario_id)
+  WITH CHECK ((SELECT auth.uid()) = usuario_id);
 
 CREATE POLICY "usuarios deletam suas medicoes"
   ON medicoes FOR DELETE
-  USING (auth.uid() = usuario_id);
-
+  USING ((SELECT auth.uid()) = usuario_id);
 
 -- ---------------------------------------------------------------------------
 -- relatorios
--- Relatório clínico gerado a partir de uma análise.
--- conteudo é JSONB (SecaoRelatorio[]) — estrutura de seções e texto narrativo.
 -- ---------------------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS relatorios (
@@ -112,7 +105,6 @@ CREATE TABLE IF NOT EXISTS relatorios (
   usuario_id          uuid        NOT NULL REFERENCES auth.users ON DELETE CASCADE,
   gerado_em           timestamptz NOT NULL DEFAULT now(),
   periodos_incluidos  text[]      NOT NULL DEFAULT '{}',
-  -- SecaoRelatorio[] — título, conteúdo narrativo, alertas opcionais
   conteudo            jsonb       NOT NULL DEFAULT '[]'
 );
 
@@ -122,17 +114,35 @@ CREATE INDEX IF NOT EXISTS relatorios_analise_id_idx
 CREATE INDEX IF NOT EXISTS relatorios_usuario_id_idx
   ON relatorios (usuario_id);
 
--- RLS
 ALTER TABLE relatorios ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "usuarios veem apenas seus relatorios"
   ON relatorios FOR SELECT
-  USING (auth.uid() = usuario_id);
+  USING ((SELECT auth.uid()) = usuario_id);
 
 CREATE POLICY "usuarios criam seus relatorios"
   ON relatorios FOR INSERT
-  WITH CHECK (auth.uid() = usuario_id);
+  WITH CHECK ((SELECT auth.uid()) = usuario_id);
+
+CREATE POLICY "usuarios atualizam seus relatorios"
+  ON relatorios FOR UPDATE
+  USING    ((SELECT auth.uid()) = usuario_id)
+  WITH CHECK ((SELECT auth.uid()) = usuario_id);
 
 CREATE POLICY "usuarios deletam seus relatorios"
   ON relatorios FOR DELETE
-  USING (auth.uid() = usuario_id);
+  USING ((SELECT auth.uid()) = usuario_id);
+
+-- ---------------------------------------------------------------------------
+-- Privilégios de roles
+-- anon não tem acesso a nenhuma tabela de dados clínicos.
+-- authenticated tem apenas as operações que a aplicação usa.
+-- ---------------------------------------------------------------------------
+
+REVOKE ALL ON analises   FROM anon;
+REVOKE ALL ON medicoes   FROM anon;
+REVOKE ALL ON relatorios FROM anon;
+
+REVOKE TRUNCATE, TRIGGER, REFERENCES ON analises   FROM authenticated;
+REVOKE TRUNCATE, TRIGGER, REFERENCES ON medicoes   FROM authenticated;
+REVOKE TRUNCATE, TRIGGER, REFERENCES ON relatorios FROM authenticated;
