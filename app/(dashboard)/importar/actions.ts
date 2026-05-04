@@ -108,7 +108,7 @@ export async function salvarAnalise(
     timestamp: m.timestamp.toISOString(),
     pas: m.pas,
     pad: m.pad,
-    fc: m.fc ?? null,
+    fc: m.fc != null && m.fc >= 20 && m.fc <= 300 ? m.fc : null,
     periodo: m.periodo ?? null,
     valida: m.valida,
     flags: m.flags,
