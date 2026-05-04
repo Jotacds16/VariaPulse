@@ -154,10 +154,6 @@ function gerarSecaoDescensoNoturno(
     )
   }
 
-  if (descenso.alertas.length > 0) {
-    alertas.push(...descenso.alertas)
-  }
-
   const confiancaBaixa = n_diurno < 7 || n_noturno < 5
   if (confiancaBaixa) {
     alertas.push(
