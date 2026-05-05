@@ -144,7 +144,7 @@ export function ImportarWizard() {
   // ---------------------------------------------------------------------------
   if (estado.passo === 'upload') {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 animate-fade-in-up">
         <div className="space-y-2">
           <label className="text-sm font-medium">Fonte dos dados</label>
           <div className="flex flex-wrap gap-2">
@@ -160,7 +160,7 @@ export function ImportarWizard() {
                   )
                 }
                 className={cn(
-                  'px-3 py-1.5 text-sm rounded-md border transition-colors',
+                  'px-3 py-1.5 text-sm rounded-md border touch-manipulation transition-colors duration-150 active:opacity-60',
                   estado.fonte === f.value
                     ? 'bg-foreground text-background border-foreground'
                     : 'border-border hover:border-foreground/40'
@@ -181,10 +181,10 @@ export function ImportarWizard() {
           onDrop={onSoltar}
           onClick={() => inputRef.current?.click()}
           className={cn(
-            'border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-colors select-none',
+            'border-2 border-dashed rounded-lg p-12 text-center cursor-pointer touch-manipulation transition-colors duration-150 select-none',
             estado.arrastando
               ? 'border-foreground bg-muted/50'
-              : 'border-border hover:border-foreground/40'
+              : 'border-border hover:border-foreground/40 active:bg-muted/30'
           )}
         >
           {processando ? (
@@ -227,7 +227,7 @@ export function ImportarWizard() {
     const temFlags = Object.keys(resumo.contagem_flags).length > 0
 
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 animate-fade-in-up">
         <div className="grid grid-cols-3 gap-4">
           {[
             { label: 'Total', valor: resumo.total, cor: '' },
@@ -341,7 +341,7 @@ export function ImportarWizard() {
           <button
             type="button"
             onClick={() => setEstado((s) => ({ ...s, passo: 'upload' }))}
-            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground active:opacity-60 touch-manipulation transition-colors duration-150"
           >
             <ChevronLeft className="size-4" />
             Voltar
@@ -350,7 +350,7 @@ export function ImportarWizard() {
             type="button"
             onClick={() => setEstado((s) => ({ ...s, passo: 'confirmar' }))}
             disabled={resumo.validas === 0}
-            className="px-4 py-2 text-sm rounded-md bg-foreground text-background disabled:opacity-40 hover:opacity-90 transition-opacity"
+            className="px-4 py-2 text-sm rounded-md bg-foreground text-background hover:opacity-90 active:opacity-60 touch-manipulation transition-opacity duration-150 disabled:opacity-40"
           >
             Continuar
           </button>
@@ -366,7 +366,7 @@ export function ImportarWizard() {
     const fonteLabel = FONTES.find((f) => f.value === estado.fonte)?.label ?? estado.fonte
 
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 animate-fade-in-up">
         <div className="space-y-1.5">
           <label className="text-sm font-medium" htmlFor="nome-analise">
             Nome da análise
@@ -421,7 +421,7 @@ export function ImportarWizard() {
           <button
             type="button"
             onClick={() => setEstado((s) => ({ ...s, passo: 'validacao' }))}
-            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground active:opacity-60 touch-manipulation transition-colors duration-150"
           >
             <ChevronLeft className="size-4" />
             Voltar
@@ -430,7 +430,7 @@ export function ImportarWizard() {
             type="button"
             onClick={salvar}
             disabled={salvando || !estado.nome.trim()}
-            className="flex items-center gap-2 px-4 py-2 text-sm rounded-md bg-foreground text-background disabled:opacity-40 hover:opacity-90 transition-opacity"
+            className="flex items-center gap-2 px-4 py-2 text-sm rounded-md bg-foreground text-background hover:opacity-90 active:opacity-60 touch-manipulation transition-opacity duration-150 disabled:opacity-40"
           >
             {salvando && <Loader2 className="size-4 animate-spin" />}
             Salvar análise
