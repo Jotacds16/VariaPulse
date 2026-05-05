@@ -24,7 +24,7 @@ export function MenuBar({ email }: { email: string }) {
       <form action={signOutAction}>
         <button
           type="submit"
-          className="flex items-center gap-1.5 text-[15px] text-muted-foreground hover:text-red-600 transition-all duration-150"
+          className="flex items-center gap-1.5 text-[15px] text-muted-foreground hover:text-red-600 active:opacity-60 touch-manipulation transition-colors duration-150"
         >
           <LogOut className="size-4" />
           <span className="hidden md:inline">Sair</span>

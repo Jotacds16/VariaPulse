@@ -125,7 +125,7 @@ export function AnalisesCliente({ analises }: { analises: AnaliseItem[] }) {
             {analises.length === 0 && (
               <Link
                 href={'/importar' as Route}
-                className="mt-3 inline-flex items-center gap-1.5 text-sm text-blue-600 hover:underline underline-offset-4 hover:gap-2.5 transition-all duration-150"
+                className="mt-3 inline-flex items-center gap-1.5 text-sm text-blue-600 hover:underline underline-offset-4 active:opacity-60 touch-manipulation transition-opacity duration-150"
               >
                 Importar a primeira análise
                 <ChevronRight className="size-4" />
@@ -145,7 +145,7 @@ export function AnalisesCliente({ analises }: { analises: AnaliseItem[] }) {
                 <div
                   key={a.id}
                   className="rounded-xl border bg-white p-5 space-y-4 animate-fade-in-up hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
-                  style={{ animationDelay: `${index * 0.07}s` }}
+                  style={{ animationDelay: `${index * 70}ms` }}
                 >
                   {/* Linha superior: ícone + nome */}
                   <div className="flex items-center gap-4">
@@ -187,7 +187,7 @@ export function AnalisesCliente({ analises }: { analises: AnaliseItem[] }) {
                   {/* Botão */}
                   <Link
                     href={`/analise/${a.id}` as Route}
-                    className="group flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-foreground text-background text-[15px] font-semibold hover:opacity-90 active:opacity-70 touch-manipulation transition-opacity duration-100"
+                    className="group flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-foreground text-background text-[15px] font-semibold hover:opacity-90 active:opacity-60 touch-manipulation transition-opacity duration-150"
                   >
                     Ver análise
                     <ChevronRight className="size-4 group-hover:translate-x-0.5 transition-transform duration-150" />

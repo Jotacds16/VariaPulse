@@ -56,7 +56,7 @@ export default async function RelatoriosPage() {
           <p className="text-sm text-muted-foreground">Nenhum relatório gerado ainda.</p>
           <Link
             href={'/analises' as Route}
-            className="mt-3 inline-flex items-center gap-1.5 text-sm text-blue-600 hover:underline underline-offset-4"
+            className="mt-3 inline-flex items-center gap-1.5 text-sm text-blue-600 hover:underline underline-offset-4 active:opacity-60 touch-manipulation transition-opacity duration-150"
           >
             Ver análises
             <ChevronRight className="size-4" />
@@ -88,7 +88,7 @@ export default async function RelatoriosPage() {
 
               <Link
                 href={`/relatorio/${item.id}` as Route}
-                className="group flex items-center justify-center gap-2 w-full py-3 rounded-xl border text-sm font-medium touch-manipulation hover:bg-muted active:opacity-60 transition-colors duration-100"
+                className="group flex items-center justify-center gap-2 w-full py-3 rounded-xl border text-sm font-medium touch-manipulation hover:bg-muted active:opacity-60 transition-colors duration-150"
               >
                 Ver relatório
                 <ChevronRight className="size-4 group-hover:translate-x-0.5 transition-transform duration-150" />

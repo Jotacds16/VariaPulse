@@ -33,7 +33,7 @@ export function BotaoRelatorio({ analiseId, relatorioGerado }: Props) {
         type="button"
         onClick={handleGerar}
         disabled={isPending}
-        className="flex items-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-medium touch-manipulation transition-colors hover:bg-muted active:opacity-60 disabled:opacity-60 disabled:cursor-not-allowed"
+        className="flex items-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-medium touch-manipulation hover:bg-muted active:opacity-60 transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed"
       >
         {isPending ? (
           <Loader2 className="size-4 animate-spin" />

@@ -49,7 +49,7 @@ function CardLinear({ linear, periodo }: { linear: AnaliseLinear; periodo: Perio
   const descenso = linear.descenso_noturno
 
   return (
-    <div className="rounded-lg border overflow-hidden hover:shadow-md transition-shadow duration-200">
+    <div className="rounded-lg border overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
       <div className="px-4 py-2.5 bg-muted/40 border-b">
         <p className="text-sm font-medium">{PERIODO_LABEL[periodo]}</p>
         <p className="text-xs text-muted-foreground">{linear.n} medições válidas</p>
@@ -106,7 +106,7 @@ function CardNaoLinear({ nl, periodo }: { nl: AnaliseNaoLinear; periodo: Periodo
     v == null ? <span className="text-xs text-muted-foreground">Insuficiente</span> : <span className="font-mono">{v.toFixed(3)}</span>
 
   return (
-    <div className="rounded-lg border overflow-hidden hover:shadow-md transition-shadow duration-200">
+    <div className="rounded-lg border overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
       <div className="px-4 py-2.5 bg-muted/40 border-b">
         <p className="text-sm font-medium">{PERIODO_LABEL[periodo]}</p>
         <p className="text-xs text-muted-foreground">{nl.n} medições válidas</p>
