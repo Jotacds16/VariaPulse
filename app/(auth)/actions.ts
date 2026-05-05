@@ -10,6 +10,8 @@ const ERROS: Record<string, string> = {
   'Password should be at least 6 characters': 'A senha deve ter pelo menos 6 caracteres.',
   'Unable to validate email address: invalid format': 'Email inválido.',
   'signup_disabled': 'Cadastro temporariamente desativado.',
+  'over_email_send_rate_limit': 'Muitas tentativas. Aguarde alguns minutos e tente novamente.',
+  'email rate limit exceeded': 'Muitas tentativas. Aguarde alguns minutos e tente novamente.',
 }
 
 function traduzir(msg: string) {
