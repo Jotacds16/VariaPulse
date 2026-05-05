@@ -30,8 +30,9 @@ export function MobileNav() {
           <Link
             key={href}
             href={href}
+            prefetch={true}
             className={cn(
-              'flex flex-1 flex-col items-center justify-center gap-1 text-xs font-medium touch-manipulation',
+              'flex flex-1 flex-col items-center justify-center gap-1 text-xs font-medium touch-manipulation active:opacity-50 transition-opacity duration-75',
               active ? 'text-blue-600' : 'text-muted-foreground'
             )}
           >
