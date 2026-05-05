@@ -39,7 +39,7 @@ export default async function RelatoriosPage() {
 
   return (
     <div className="max-w-3xl mx-auto w-full space-y-6">
-      <div>
+      <div className="animate-fade-in">
         <h1 className="text-lg font-semibold">Relatórios</h1>
         <p className="text-sm text-muted-foreground">
           Relatórios de pesquisa gerados a partir das análises
@@ -64,10 +64,11 @@ export default async function RelatoriosPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {itens.map((item) => (
+          {itens.map((item, index) => (
             <div
               key={item.id}
-              className="rounded-xl border bg-white p-5 space-y-3"
+              className="rounded-xl border bg-white p-5 space-y-3 animate-fade-in-up hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+              style={{ animationDelay: `${index * 70}ms` }}
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-3 min-w-0">

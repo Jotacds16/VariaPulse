@@ -49,7 +49,7 @@ function CardLinear({ linear, periodo }: { linear: AnaliseLinear; periodo: Perio
   const descenso = linear.descenso_noturno
 
   return (
-    <div className="rounded-lg border overflow-hidden">
+    <div className="rounded-lg border overflow-hidden hover:shadow-md transition-shadow duration-200">
       <div className="px-4 py-2.5 bg-muted/40 border-b">
         <p className="text-sm font-medium">{PERIODO_LABEL[periodo]}</p>
         <p className="text-xs text-muted-foreground">{linear.n} medições válidas</p>
@@ -106,7 +106,7 @@ function CardNaoLinear({ nl, periodo }: { nl: AnaliseNaoLinear; periodo: Periodo
     v == null ? <span className="text-xs text-muted-foreground">Insuficiente</span> : <span className="font-mono">{v.toFixed(3)}</span>
 
   return (
-    <div className="rounded-lg border overflow-hidden">
+    <div className="rounded-lg border overflow-hidden hover:shadow-md transition-shadow duration-200">
       <div className="px-4 py-2.5 bg-muted/40 border-b">
         <p className="text-sm font-medium">{PERIODO_LABEL[periodo]}</p>
         <p className="text-xs text-muted-foreground">{nl.n} medições válidas</p>
@@ -191,17 +191,17 @@ export function AnaliseTabs({ analise }: Props) {
 
   return (
     <div className="space-y-6">
-      <div className="flex gap-1 border-b">
+      <div className="flex gap-0 border-b">
         {(['linear', 'nao_linear'] as Tab[]).map((t) => (
           <button
             key={t}
             type="button"
             onClick={() => setTab(t)}
             className={cn(
-              'px-4 py-2 text-sm transition-colors border-b-2 -mb-px',
+              'px-5 py-2.5 text-sm font-medium transition-all duration-200 border-b-2 -mb-px',
               tab === t
-                ? 'border-foreground text-foreground font-medium'
-                : 'border-transparent text-muted-foreground hover:text-foreground'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
             )}
           >
             {t === 'linear' ? 'Linear' : 'Não linear'}
@@ -209,29 +209,32 @@ export function AnaliseTabs({ analise }: Props) {
         ))}
       </div>
 
-      {tab === 'linear' && (
-        <div className="space-y-4">
-          {analise.linear
-            ? periodos.map((p) => {
+      <div key={tab} className="space-y-4 animate-fade-in">
+        {tab === 'linear' && (
+          analise.linear
+            ? periodos.map((p, i) => {
                 const dados = analise.linear![p as Periodo]
-                return dados ? <CardLinear key={p} linear={dados} periodo={p} /> : null
+                return dados ? (
+                  <div key={p} className="animate-fade-in-up" style={{ animationDelay: `${i * 60}ms` }}>
+                    <CardLinear linear={dados} periodo={p} />
+                  </div>
+                ) : null
               })
             : <p className="text-sm text-muted-foreground">Dados lineares não disponíveis.</p>
-          }
-        </div>
-      )}
-
-      {tab === 'nao_linear' && (
-        <div className="space-y-4">
-          {analise.nao_linear
-            ? periodos.map((p) => {
+        )}
+        {tab === 'nao_linear' && (
+          analise.nao_linear
+            ? periodos.map((p, i) => {
                 const dados = analise.nao_linear![p as Periodo]
-                return dados ? <CardNaoLinear key={p} nl={dados} periodo={p} /> : null
+                return dados ? (
+                  <div key={p} className="animate-fade-in-up" style={{ animationDelay: `${i * 60}ms` }}>
+                    <CardNaoLinear nl={dados} periodo={p} />
+                  </div>
+                ) : null
               })
             : <p className="text-sm text-muted-foreground">Dados não lineares não disponíveis.</p>
-          }
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }

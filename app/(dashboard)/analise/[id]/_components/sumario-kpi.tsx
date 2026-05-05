@@ -15,15 +15,20 @@ function CardKpi({
   unidade,
   cor = 'text-foreground',
   sublabel,
+  delay = 0,
 }: {
   rotulo: string
   valor: string
   unidade?: string
   cor?: string
   sublabel?: string
+  delay?: number
 }) {
   return (
-    <div className="rounded-lg border bg-white px-4 py-3.5 space-y-1 min-w-0">
+    <div
+      className="rounded-lg border bg-white px-4 py-3.5 space-y-1 min-w-0 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-default animate-fade-in-up"
+      style={{ animationDelay: `${delay}ms` }}
+    >
       <p className="text-xs text-muted-foreground leading-none">{rotulo}</p>
       <p className={cn('text-2xl font-semibold font-mono tracking-tight leading-none', cor)}>
         {valor}
@@ -57,6 +62,7 @@ export function SumarioKpi({
         unidade="mmHg"
         cor={pasCor}
         sublabel={t.media_pas >= 130 ? 'Acima da referência' : 'Dentro da referência'}
+        delay={0}
       />
       <CardKpi
         rotulo="Média PAD (24h)"
@@ -64,10 +70,14 @@ export function SumarioKpi({
         unidade="mmHg"
         cor={padCor}
         sublabel={t.media_pad >= 80 ? 'Acima da referência' : 'Dentro da referência'}
+        delay={70}
       />
 
       {descInfo ? (
-        <div className="rounded-lg border bg-white px-4 py-3.5 space-y-1.5 min-w-0">
+        <div
+          className="rounded-lg border bg-white px-4 py-3.5 space-y-1.5 min-w-0 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-default animate-fade-in-up"
+          style={{ animationDelay: '140ms' }}
+        >
           <p className="text-xs text-muted-foreground leading-none">Descenso noturno</p>
           <span
             className={cn(
@@ -85,7 +95,10 @@ export function SumarioKpi({
           )}
         </div>
       ) : (
-        <div className="rounded-lg border bg-white px-4 py-3.5 space-y-1 min-w-0">
+        <div
+          className="rounded-lg border bg-white px-4 py-3.5 space-y-1 min-w-0 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-default animate-fade-in-up"
+          style={{ animationDelay: '140ms' }}
+        >
           <p className="text-xs text-muted-foreground leading-none">Descenso noturno</p>
           <p className="text-xs text-muted-foreground mt-1">Período noturno não disponível</p>
         </div>
@@ -95,6 +108,7 @@ export function SumarioKpi({
         rotulo="Medições válidas"
         valor={String(t.n)}
         sublabel={`de ${t.n} do período total`}
+        delay={210}
       />
     </div>
   )
