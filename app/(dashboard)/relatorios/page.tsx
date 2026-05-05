@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronRight, FileText } from 'lucide-react'
-import type { RelatorioRow, AnaliseRow } from '@/lib/supabase/types'
+import type { RelatorioRow } from '@/lib/supabase/types'
 import type { Route } from 'next'
 
 type RelatorioComAnalise = RelatorioRow & {
@@ -28,32 +28,14 @@ export default async function RelatoriosPage() {
 
   const { data, error } = await supabase
     .from('relatorios')
-    .select('*')
+    .select('*, analises(nome)')
     .eq('usuario_id', user.id)
     .order('gerado_em', { ascending: false })
 
-  const relatorios = (data ?? []) as RelatorioRow[]
-
-  // Busca nomes das análises relacionadas
-  const analiseIds = [...new Set(relatorios.map((r) => r.analise_id))]
-  const analiseMap = new Map<string, string>()
-
-  if (analiseIds.length > 0) {
-    const { data: analises } = await supabase
-      .from('analises')
-      .select('id, nome')
-      .in('id', analiseIds)
-
-    for (const a of analises ?? []) {
-      const analise = a as Pick<AnaliseRow, 'id' | 'nome'>
-      analiseMap.set(analise.id, analise.nome)
-    }
-  }
-
-  const itens: RelatorioComAnalise[] = relatorios.map((r) => ({
-    ...r,
-    analise_nome: analiseMap.get(r.analise_id) ?? null,
-  }))
+  const itens: RelatorioComAnalise[] = (data ?? []).map((r) => {
+    const { analises, ...rest } = r as RelatorioRow & { analises: { nome: string } | null }
+    return { ...rest, analise_nome: analises?.nome ?? null }
+  })
 
   return (
     <div className="max-w-3xl mx-auto w-full space-y-6">
