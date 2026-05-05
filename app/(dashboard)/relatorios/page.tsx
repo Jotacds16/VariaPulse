@@ -88,7 +88,7 @@ export default async function RelatoriosPage() {
 
               <Link
                 href={`/relatorio/${item.id}` as Route}
-                className="group flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border text-sm font-medium hover:bg-muted transition-colors"
+                className="group flex items-center justify-center gap-2 w-full py-3 rounded-xl border text-sm font-medium touch-manipulation hover:bg-muted active:opacity-60 transition-colors duration-100"
               >
                 Ver relatório
                 <ChevronRight className="size-4 group-hover:translate-x-0.5 transition-transform duration-150" />

@@ -57,7 +57,7 @@ export default async function AnalisePage({ params }: PageProps) {
       <div className="animate-fade-in">
         <Link
           href="/analises"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4 group"
+          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground active:opacity-60 touch-manipulation transition-colors mb-4 group"
         >
           <ChevronLeft className="size-4 group-hover:-translate-x-0.5 transition-transform duration-150" />
           Análises

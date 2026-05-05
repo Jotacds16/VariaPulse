@@ -198,7 +198,7 @@ export function AnaliseTabs({ analise }: Props) {
             type="button"
             onClick={() => setTab(t)}
             className={cn(
-              'px-5 py-2.5 text-sm font-medium transition-all duration-200 border-b-2 -mb-px',
+              'px-5 py-3 text-sm font-medium touch-manipulation transition-colors duration-150 border-b-2 -mb-px active:opacity-60',
               tab === t
                 ? 'border-blue-600 text-blue-600'
                 : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'

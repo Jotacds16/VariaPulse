@@ -32,11 +32,14 @@ export function MobileNav() {
             href={href}
             prefetch={true}
             className={cn(
-              'flex flex-1 flex-col items-center justify-center gap-1 text-xs font-medium touch-manipulation active:opacity-50 transition-opacity duration-75',
+              'relative flex flex-1 flex-col items-center justify-center gap-1 text-xs font-medium touch-manipulation active:opacity-50 transition-opacity duration-75',
               active ? 'text-blue-600' : 'text-muted-foreground'
             )}
           >
-            <Icon className={cn('size-6', active ? 'text-blue-600' : '')} />
+            {active && (
+              <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[3px] rounded-full bg-blue-600" />
+            )}
+            <Icon className="size-6" />
             {label}
           </Link>
         )

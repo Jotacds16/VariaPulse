@@ -26,7 +26,7 @@ function CardKpi({
 }) {
   return (
     <div
-      className="rounded-lg border bg-white px-4 py-3.5 space-y-1 min-w-0 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-default animate-fade-in-up"
+      className="rounded-lg border bg-white px-4 py-3.5 space-y-1 min-w-0 hover:shadow-md hover:-translate-y-0.5 active:shadow-sm active:scale-[0.98] touch-manipulation transition-all duration-200 cursor-default animate-fade-in-up"
       style={{ animationDelay: `${delay}ms` }}
     >
       <p className="text-xs text-muted-foreground leading-none">{rotulo}</p>
@@ -96,7 +96,7 @@ export function SumarioKpi({
         </div>
       ) : (
         <div
-          className="rounded-lg border bg-white px-4 py-3.5 space-y-1 min-w-0 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-default animate-fade-in-up"
+          className="rounded-lg border bg-white px-4 py-3.5 space-y-1 min-w-0 hover:shadow-md hover:-translate-y-0.5 active:shadow-sm active:scale-[0.98] touch-manipulation transition-all duration-200 cursor-default animate-fade-in-up"
           style={{ animationDelay: '140ms' }}
         >
           <p className="text-xs text-muted-foreground leading-none">Descenso noturno</p>

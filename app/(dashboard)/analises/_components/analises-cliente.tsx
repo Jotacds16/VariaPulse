@@ -67,7 +67,7 @@ export function AnalisesCliente({ analises }: { analises: AnaliseItem[] }) {
           <h1 className="text-2xl font-bold text-white">Análises</h1>
           <Link
             href={'/importar' as Route}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/15 text-white text-sm font-semibold hover:bg-white/30 active:scale-95 transition-all duration-150"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/15 text-white text-sm font-semibold hover:bg-white/30 active:opacity-60 touch-manipulation transition-colors duration-150"
           >
             <Plus className="size-4" />
             Nova
@@ -88,17 +88,18 @@ export function AnalisesCliente({ analises }: { analises: AnaliseItem[] }) {
 
         {/* Filtros por fonte */}
         <div className="grid grid-cols-5 gap-2">
-          {FILTROS.map(({ value, label, icon: Icon }) => (
+          {FILTROS.map(({ value, label, icon: Icon }, index) => (
             <button
               key={value}
               type="button"
               onClick={() => setFiltro(value)}
               className={cn(
-                'flex flex-col items-center gap-2 py-3 px-2 rounded-xl text-xs font-semibold transition-all duration-150 active:scale-95',
+                'flex flex-col items-center gap-2 py-3 px-1 rounded-xl text-xs font-semibold touch-manipulation transition-colors duration-150 active:opacity-60 animate-fade-in-up',
                 filtro === value
-                  ? 'bg-white text-blue-600 scale-105 shadow-md'
-                  : 'bg-white/15 text-white hover:bg-white/30 hover:scale-105'
+                  ? 'bg-white text-blue-600 shadow-md'
+                  : 'bg-white/15 text-white'
               )}
+              style={{ animationDelay: `${index * 50}ms` }}
             >
               <Icon className="size-5" />
               <span className="leading-tight text-center">{label}</span>
@@ -143,7 +144,7 @@ export function AnalisesCliente({ analises }: { analises: AnaliseItem[] }) {
               return (
                 <div
                   key={a.id}
-                  className="rounded-xl border bg-white p-5 space-y-4 animate-fade-in-up hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-default"
+                  className="rounded-xl border bg-white p-5 space-y-4 animate-fade-in-up hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
                   style={{ animationDelay: `${index * 0.07}s` }}
                 >
                   {/* Linha superior: ícone + nome */}
@@ -186,7 +187,7 @@ export function AnalisesCliente({ analises }: { analises: AnaliseItem[] }) {
                   {/* Botão */}
                   <Link
                     href={`/analise/${a.id}` as Route}
-                    className="group flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-foreground text-background text-[15px] font-semibold hover:opacity-90 active:scale-[0.98] transition-all duration-150"
+                    className="group flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-foreground text-background text-[15px] font-semibold hover:opacity-90 active:opacity-70 touch-manipulation transition-opacity duration-100"
                   >
                     Ver análise
                     <ChevronRight className="size-4 group-hover:translate-x-0.5 transition-transform duration-150" />
